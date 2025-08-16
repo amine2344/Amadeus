@@ -1,38 +1,55 @@
-<?php 
-
+<?php
 
 namespace ShaBax\Amadeus;
 
-use Illuminate\Database\Eloquent\Model;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
-class MyClient extends Model
+class MyClient
 {
-    public static function get($endpoint,$params=[]){
-        $url=Amadeus::$base_url.$endpoint."?".http_build_query($params);
-        $Authorization="Bearer ".Amadeus::$access_token;
-        $requestParams=[
-            'headers' => ['Content-Type' => 'application/vnd.amadeus+json','Authorization' => $Authorization],
-            'verify' => false,
+    protected static function request($method, $endpoint, $params = [])
+    {
+        $url = rtrim(Amadeus::$base_url, '/') . '/' . ltrim($endpoint, '/');
+        $Authorization = "Bearer " . Amadeus::$access_token;
+
+        $client = new Client([
+            'base_uri' => Amadeus::$base_url,
+            'timeout'  => Amadeus::$timeout ?? 30,
+            'verify'   => false,
+        ]);
+
+        $options = [
+            'headers' => [
+                'Content-Type'  => 'application/vnd.amadeus+json',
+                'Authorization' => $Authorization,
+            ],
         ];
-        try{
-            $client = new Client(); //GuzzleHttp\Client
-            $result = $client->get($url,$requestParams);  
-            if($result->getStatusCode()){
-                $result = json_decode($result->getBody());
-                return $result;
 
-            }
-            else{
-                $result = json_decode($result->getBody());
-                return $result;
-            }
+        if ($method === 'GET') {
+            $options['query'] = $params;
+        } else {
+            $options['json'] = $params;
+        }
 
+        try {
+            $response = $client->request($method, $endpoint, $options);
+            return json_decode($response->getBody(), true);
+        } catch (GuzzleException $e) {
+            $response = $e->getResponse();
+            if ($response) {
+                return json_decode($response->getBody()->getContents(), true);
+            }
+            return ['error' => $e->getMessage()];
         }
-        catch(GuzzleException $exception){
-            $response = $exception->getResponse();
-            return json_decode($response->getBody()->getContents());
-        }
+    }
+
+    public static function get($endpoint, $params = [])
+    {
+        return self::request('GET', $endpoint, $params);
+    }
+
+    public static function post($endpoint, $params = [])
+    {
+        return self::request('POST', $endpoint, $params);
     }
 }
