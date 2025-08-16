@@ -7,8 +7,8 @@ return [
     'client_secret'=>'yYCrCp3SGk2QRlE6',
     'grant_type'=>'client_credentials',
 	'sandbox'=>true,
-    'test_link'=>'https://test.api.amadeus.com/',
-    'live_link'=>'https://api.amadeus.com/',
+    'test_link'=>'https://test.api.amadeus.com',
+    'live_link'=>'https://api.amadeus.com',
 	'timeout'=>30,
 	'RETURNTRANSFER'=>true,
 ];
