@@ -1,5 +1,6 @@
 {
-    "name": "shabax/amadeus",
+    "name": "amine2344/amadeus",
+
     "description": "Laravel Library for Amadeus Self-Service Atravel APIs",
     "keywords": ["amadeus","flights","travel","laravel"],
     "authors": [
