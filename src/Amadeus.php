@@ -2,7 +2,11 @@
 
 namespace ShaBax\Amadeus;
 
+use Illuminate\Support\ServiceProvider;
+use ShaBax\Amadeus\Auth;
 use App\Http\Controllers\Controller;
+use ShaBax\Amadeus\Flight;
+use ShaBax\Amadeus\Hotel; // Added Hotel
 
 class Amadeus extends Controller
 {
@@ -20,45 +24,62 @@ class Amadeus extends Controller
 
     public function __construct()
     {
-        self::$client_id       = config('amadeus.client_id');
-        self::$client_secret   = config('amadeus.client_secret');
-        self::$grant_type      = config('amadeus.grant_type', 'client_credentials');
-        self::$sandbox         = config('amadeus.sandbox', true);
-        self::$test_link       = config('amadeus.test_link', 'https://test.api.amadeus.com/');
-        self::$live_link       = config('amadeus.live_link', 'https://api.amadeus.com/');
-        self::$timeout         = config('amadeus.timeout', 30);
-        self::$RETURNTRANSFER  = config('amadeus.RETURNTRANSFER', true);
+        self::$client_id = config('amadeus.client_id');
+        self::$client_secret = config('amadeus.client_secret');
+        self::$grant_type = config('amadeus.grant_type');
+        self::$sandbox = config('amadeus.sandbox');
+        self::$test_link = config('amadeus.test_link');
+        self::$live_link = config('amadeus.live_link');
+        self::$timeout = config('amadeus.timeout');
+        self::$RETURNTRANSFER = config('amadeus.RETURNTRANSFER');
 
-        self::$base_url = self::$sandbox ? self::$test_link : self::$live_link;
-
-        // Ensure we always have a token
-        if (!self::$access_token) {
-            Auth::getAccessToken();
+        self::$base_url = self::$live_link;
+        if (self::$sandbox == true) {
+            self::$base_url = self::$test_link;
         }
+        Auth::getAccessToken();
     }
 
     public static function flightLowFareSearch($params)
     {
         return Flight::flightLowFareSearch($params);
     }
-
     public static function flightInspirationSearch($params)
     {
         return Flight::flightInspirationSearch($params);
     }
-
     public static function flightCheapestDateSearch($params)
     {
         return Flight::flightCheapestDateSearch($params);
     }
-
     public static function flightOffersSearch($params)
     {
         return Flight::flightOffersSearch($params);
     }
-
     public static function flightSeatMap($params)
     {
         return Flight::flightSeatMap($params);
+    }
+
+    // Added Hotel methods
+    public static function hotelOffersSearch($params)
+    {
+        return Hotel::hotelOffersSearch($params);
+    }
+    public static function getHotelsByHotels($params)
+    {
+        return Hotel::getHotelsByHotels($params);
+    }
+    public static function getHotelsByCity($params)
+    {
+        return Hotel::getHotelsByCity($params);
+    }
+    public static function getHotelsByGeocode($params)
+    {
+        return Hotel::getHotelsByGeocode($params);
+    }
+    public static function createHotelOrder($data)
+    {
+        return Hotel::createHotelOrder($data);
     }
 }
